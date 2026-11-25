@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SteerLink · Your phone is the wheel</title>
+<meta name="description" content="Turn your phone into a steering wheel and gamepad for PC racing games. Tilt to steer, analog pedals, real vibration from game telemetry. Windows and macOS.">
+<meta property="og:title" content="SteerLink · Your phone is the wheel">
+<meta property="og:description" content="Tilt to steer, analog pedals, real vibration from the game. Free 7-day trial.">
+<meta property="og:image" content="logo.png">
+<meta name="theme-color" content="#0B0A09">
+<link rel="icon" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0B0A09;--bg2:#12100E;--card:#171411;--line:#2A2521;
+  --cream:#F3EFE8;--soft:#A79F95;--dim:#6E665D;
+  --orange:#FF6A13;--orange2:#FF8A3D;--ink:#140C06;
+  --display:"Space Grotesk",system-ui,sans-serif;--text:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--cream);font:16px/1.6 var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit}
+.wrap{max-width:1160px;margin:0 auto;padding:0 20px}
+h1,h2,h3{font-family:var(--display);font-weight:700;letter-spacing:-.02em;line-height:1.02}
+:focus-visible{outline:2px solid var(--orange);outline-offset:3px;border-radius:6px}
+
+nav{position:fixed;inset:0 0 auto;z-index:50;transition:background .3s,border-color .3s;border-bottom:1px solid transparent}
+nav.solid{background:rgba(11,10,9,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-color:var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:18px}
+.brand img{width:32px;height:32px;border-radius:9px}
+.links{display:flex;gap:26px;align-items:center;font-size:14px;color:var(--soft)}
+.links a:hover{color:var(--cream)}
+.lang{background:transparent;border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:13px;cursor:pointer}
+.lang:hover{border-color:var(--orange)}
+.navcta{background:var(--orange);color:var(--ink)!important;padding:8px 16px;border-radius:999px;font-weight:600}
+
+.btn{display:inline-flex;align-items:center;gap:10px;padding:15px 24px;border-radius:999px;font-weight:600;border:1px solid var(--line);background:var(--card);transition:transform .25s var(--ease),background .25s,border-color .25s;cursor:pointer}
+.btn:hover{transform:translateY(-2px);border-color:var(--orange)}
+.btn.primary{background:var(--orange);color:var(--ink);border-color:var(--orange);box-shadow:0 10px 30px -10px rgba(255,106,19,.7)}
+.btn.primary:hover{background:var(--orange2)}
+.btn svg{width:18px;height:18px;fill:currentColor;flex:none}
+.btn .t{text-align:left;line-height:1.2}
+.btn .t small{display:block;font-weight:400;font-size:12px;opacity:.7}
+
+/* HERO */
+.hero{position:relative;min-height:100svh;display:flex;align-items:center;overflow:hidden;padding:110px 0 60px}
+.glow{position:absolute;width:900px;height:900px;right:-260px;top:50%;translate:0 -50%;background:radial-gradient(circle,rgba(255,106,19,.28),rgba(255,106,19,.06) 45%,transparent 68%);pointer-events:none;will-change:transform}
+.grain{position:absolute;inset:0;opacity:.07;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")}
+.hero .wrap{position:relative;display:grid;grid-template-columns:1.05fr .95fr;gap:30px;align-items:center;width:100%}
+.hero h1{font-size:clamp(46px,7.4vw,104px)}
+.hero h1 em{font-style:normal;color:var(--orange)}
+.hero .lead{font-size:clamp(17px,1.6vw,20px);color:var(--soft);max-width:520px;margin:24px 0 34px}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+.meta{margin-top:22px;font-size:13px;color:var(--dim);display:flex;gap:16px;flex-wrap:wrap}
+.meta span{display:inline-flex;align-items:center;gap:6px}
+.meta i{width:6px;height:6px;border-radius:50%;background:var(--orange)}
+.stage{position:relative;aspect-ratio:1;max-width:560px;justify-self:center;width:100%}
+.stage svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.ring-back,.ring-front{will-change:transform;transform-origin:50% 50%}
+.mascot{will-change:transform;transition:transform .5s var(--ease)}
+.orbit{position:absolute;inset:6%;border:1px dashed rgba(243,239,232,.1);border-radius:50%;animation:spin 60s linear infinite}
+.orbit::after{content:"";position:absolute;top:-5px;left:50%;width:10px;height:10px;border-radius:50%;background:var(--orange);box-shadow:0 0 0 6px rgba(255,106,19,.15)}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* REVEAL */
+.rv{opacity:0;transform:translateY(28px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+.rv.in{opacity:1;transform:none}
+.rv.d1{transition-delay:.08s}.rv.d2{transition-delay:.16s}.rv.d3{transition-delay:.24s}.rv.d4{transition-delay:.32s}.rv.d5{transition-delay:.4s}
+
+section{position:relative;padding:120px 0}
+.kicker{font-size:13px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--orange);margin-bottom:18px}
+h2{font-size:clamp(36px,5.4vw,72px)}
+.sub{color:var(--soft);font-size:18px;max-width:560px;margin-top:18px}
+
+/* MARQUEE */
+.marquee{border-block:1px solid var(--line);padding:22px 0;overflow:hidden;background:var(--bg2)}
+.track{display:flex;gap:48px;width:max-content;animation:slide 38s linear infinite}
+.track span{font-family:var(--display);font-size:clamp(22px,3vw,34px);font-weight:500;color:var(--dim);white-space:nowrap;display:flex;align-items:center;gap:48px}
+.track span::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--orange)}
+@keyframes slide{to{transform:translateX(-50%)}}
+
+/* DRIVE DEMO (signature) */
+#drive{padding-top:130px}
+.drive-head{display:flex;justify-content:space-between;align-items:end;gap:30px;flex-wrap:wrap;margin-bottom:40px}
+.drive-head .sub{margin-top:14px}
+.demo{position:relative;border-radius:28px;overflow:hidden;border:1px solid var(--line);background:#000;aspect-ratio:16/8.2;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+.demo:active{cursor:grabbing}
+.demo canvas{display:block;width:100%;height:100%}
+.car{position:absolute;left:50%;bottom:7%;width:13%;translate:-50% 0;pointer-events:none;transition:transform .08s linear}
+.hud{position:absolute;top:18px;left:18px;right:18px;display:flex;justify-content:space-between;pointer-events:none;font-variant-numeric:tabular-nums}
+.chip{background:rgba(11,10,9,.62);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(243,239,232,.12);border-radius:14px;padding:8px 14px;font-size:12px;color:var(--soft);line-height:1.3}
+.chip b{display:block;font-family:var(--display);font-size:22px;color:var(--cream)}
+.chip.warn b{color:var(--orange)}
+.wheel{position:absolute;right:18px;bottom:18px;width:clamp(74px,11vw,120px);aspect-ratio:1;pointer-events:none}
+.wheel svg{width:100%;height:100%;transition:transform .05s linear}
+.hint{position:absolute;left:50%;top:50%;translate:-50% -50%;background:rgba(11,10,9,.7);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(243,239,232,.14);border-radius:18px;padding:16px 22px;text-align:center;font-size:15px;transition:opacity .5s,scale .5s;pointer-events:none}
+.hint b{font-family:var(--display);font-size:20px;display:block;margin-bottom:4px}
+.demo.live .hint{opacity:0;scale:.95}
+.tiltbtn{display:none;margin-top:16px}
+.drive-keys{margin-top:16px;color:var(--dim);font-size:14px;display:flex;gap:18px;flex-wrap:wrap}
+.drive-keys kbd{font:600 12px var(--text);border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:2px 7px;color:var(--soft);margin-right:4px}
+
+/* FEATURES */
+.feat-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;margin-top:56px}
+.f{position:relative;grid-column:span 2;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:30px;overflow:hidden;min-height:250px;display:flex;flex-direction:column;justify-content:flex-end;transform-style:preserve-3d;transition:transform .35s var(--ease),border-color .35s}
+.f.wide{grid-column:span 3}
+.f::before{content:"";position:absolute;inset:0;background:radial-gradient(380px circle at var(--mx,50%) var(--my,50%),rgba(255,106,19,.16),transparent 60%);opacity:0;transition:opacity .35s}
+.f:hover{border-color:rgba(255,106,19,.45)}
+.f:hover::before{opacity:1}
+.f .ic{position:absolute;top:26px;left:30px;width:46px;height:46px;border-radius:14px;background:rgba(255,106,19,.12);display:grid;place-items:center}
+.f .ic svg{width:24px;height:24px;stroke:var(--orange);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.f h3{font-size:24px;margin-bottom:8px;position:relative}
+.f p{color:var(--soft);position:relative}
+
+/* LINK (latency) */
+.link{display:grid;grid-template-columns:1fr 1.2fr;gap:60px;align-items:center}
+.pipe{position:relative;height:220px}
+.pipe svg{width:100%;height:100%;overflow:visible}
+.pkt{fill:var(--orange)}
+.node{fill:var(--card);stroke:var(--line);stroke-width:1.5}
+.nodelabel{fill:var(--soft);font:500 13px var(--text)}
+
+/* STEPS */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:56px;counter-reset:s}
+.st{border-top:2px solid var(--line);padding-top:26px;position:relative}
+.st::before{counter-increment:s;content:"0" counter(s);font-family:var(--display);font-size:56px;font-weight:700;color:var(--orange);display:block;line-height:1;margin-bottom:18px}
+.st::after{content:"";position:absolute;top:-2px;left:0;height:2px;width:0;background:var(--orange);transition:width 1.2s var(--ease)}
+.st.in::after{width:100%}
+.st h3{font-size:22px;margin-bottom:8px}
+.st p{color:var(--soft)}
+
+/* PRICING */
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:56px;align-items:stretch}
+.plan{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:32px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.plan.hot{background:var(--orange);color:var(--ink);border-color:var(--orange)}
+.plan.hot .per,.plan.hot li{color:rgba(20,12,6,.78)}
+.plan.hot li::before{color:var(--ink)}
+.tag{align-self:flex-start;font-size:12px;font-weight:600;padding:4px 12px;border-radius:999px;border:1px solid currentColor;margin-bottom:22px;opacity:.85}
+.plan h3{font-size:22px}
+.price{font-family:var(--display);font-size:52px;font-weight:700;margin:12px 0 4px;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.price small{font-size:16px;font-weight:500;opacity:.7;letter-spacing:0}
+.per{color:var(--soft);font-size:14px;margin-bottom:24px}
+.plan ul{list-style:none;display:grid;gap:10px;font-size:15px;color:var(--soft)}
+.plan li{display:flex;gap:10px}
+.plan li::before{content:"";flex:none;width:16px;height:16px;margin-top:4px;border-radius:50%;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3 3 7-7' stroke='black' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3 3 7-7' stroke='black' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") center/contain no-repeat;color:var(--orange)}
+.fine{color:var(--dim);font-size:13px;margin-top:22px}
+
+/* FAQ */
+.faq-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:60px;align-items:start}
+details{border-bottom:1px solid var(--line);padding:22px 0}
+summary{cursor:pointer;list-style:none;font-family:var(--display);font-size:20px;font-weight:500;display:flex;justify-content:space-between;gap:20px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";color:var(--orange);font-size:26px;line-height:1;transition:rotate .3s var(--ease)}
+details[open] summary::after{rotate:45deg}
+details p{color:var(--soft);margin-top:12px;max-width:620px}
+
+/* CLOSE */
+.close{padding:140px 0 100px;text-align:center;overflow:hidden}
+.close .glow{right:auto;left:50%;top:auto;bottom:-500px;translate:-50% 0}
+.close-mascot{width:150px;margin:0 auto 34px;display:block}
+.close h2{font-size:clamp(44px,8vw,120px)}
+.dl{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:56px auto 0;max-width:980px;text-align:left}
+.dlc{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:24px;display:flex;flex-direction:column;gap:14px}
+.dlc h3{font-size:20px;display:flex;align-items:center;gap:10px}
+.dlc h3 svg{width:20px;height:20px;fill:var(--cream)}
+.dlc p{color:var(--soft);font-size:14px;flex:1}
+.dlc .btn{justify-content:center}
+.btn.off{opacity:.5;pointer-events:none}
+
+footer{border-top:1px solid var(--line);padding:28px 0;color:var(--dim);font-size:14px}
+footer .wrap{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+
+@media (max-width:900px){
+  .links a:not(.navcta){display:none}
+  .hero .wrap{grid-template-columns:1fr;text-align:left}
+  .stage{max-width:230px;order:-1;margin:0 auto -10px}
+  .hero{padding-top:90px}
+  .feat-grid{grid-template-columns:1fr}
+  .f,.f.wide{grid-column:auto;min-height:210px}
+  .link,.faq-grid{grid-template-columns:1fr;gap:30px}
+  .steps,.plans,.dl{grid-template-columns:1fr}
+  .demo{aspect-ratio:4/5}
+  .car{width:30%}
+  .tiltbtn{display:inline-flex}
+  section{padding:90px 0}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition-duration:.01ms!important}
+  .rv{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="m-dome" viewBox="0 0 200 200">
+      <path d="M36 128C26 92 52 52 100 46C150 40 182 70 174 102C170 116 160 121 148 123C112 130 72 134 36 128Z" fill="#F3EFE8"/>
+    </symbol>
+    <symbol id="m-swoosh" viewBox="0 0 200 200">
+      <path d="M18 150c40 20 118 6 172-74-14 52-74 106-172 74z" fill="#FF6A13"/>
+      <path d="M22 146c56 14 120-8 160-58" stroke="#0B0A09" stroke-width="7" fill="none" stroke-linecap="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<nav id="nav"><div class="wrap">
+  <a class="brand" href="#top"><img src="logo.png" alt="">SteerLink</a>
+  <div class="links">
+    <a href="#drive" data-i="nav.drive">Test drive</a>
+    <a href="#features" data-i="nav.features">Features</a>
+    <a href="#pricing" data-i="nav.pricing">Pricing</a>
+    <button class="lang" id="lang" type="button" aria-label="Language">TR</button>
+    <a class="navcta" href="#download" data-i="nav.download">Download</a>
+  </div>
+</div></nav>
+
+<header class="hero" id="top">
+  <div class="glow" id="glow"></div>
+  <div class="grain"></div>
+  <div class="wrap">
+    <div>
+      <h1 class="rv" data-i="hero.title" data-html>Your phone<br>is the <em>wheel.</em></h1>
+      <p class="lead rv d1" data-i="hero.lead">Tilt to steer, squeeze the pedals, feel every kerb. SteerLink turns the phone in your pocket into a racing wheel for your PC, over your own Wi‑Fi.</p>
+      <div class="cta rv d2">
+        <a class="btn primary" href="#download"><svg viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5z"/></svg><span data-i="hero.download">Download free</span></a>
+        <a class="btn" href="#drive" data-i="hero.try">Take a test drive</a>
+      </div>
+      <div class="meta rv d3"><span><i></i>Windows</span><span><i></i>macOS</span><span><i></i>iPhone</span><span><i></i>Android</span></div>
+    </div>
+    <div class="stage" id="stage" aria-hidden="true">
+      <div class="orbit"></div>
+      <svg viewBox="0 0 200 200">
+        <g class="mascot" id="mascot">
+          <use href="#m-swoosh" class="ring-back" id="ringB"/>
+          <use href="#m-dome"/>
+          <g id="eyes"><rect x="80" y="76" width="11" height="24" rx="5.5" fill="#0B0A09"/><rect x="112" y="72" width="11" height="24" rx="5.5" fill="#0B0A09"/></g>
+        </g>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<div class="marquee" aria-label="Supported games"><div class="track">
+  <span>Forza Horizon</span><span>Euro Truck Simulator 2</span><span>American Truck Simulator</span><span>F1 25</span><span>BeamNG.drive</span><span>Assetto Corsa</span><span data-i="mq.any">Any gamepad game</span>
+  <span>Forza Horizon</span><span>Euro Truck Simulator 2</span><span>American Truck Simulator</span><span>F1 25</span><span>BeamNG.drive</span><span>Assetto Corsa</span><span data-i="mq.any">Any gamepad game</span>
+</div></div>
+
+<section id="drive"><div class="wrap">
+  <div class="drive-head">
+    <div>
+      <p class="kicker rv" data-i="drive.k">Test drive</p>
+      <h2 class="rv d1" data-i="drive.title">Grab the road.</h2>
+      <p class="sub rv d2" data-i="drive.sub">This is how SteerLink feels. Drag left and right to steer, or tilt your phone. Leave the road and you will feel it.</p>
+    </div>
+    <button class="btn tiltbtn" id="tilt" type="button" data-i="drive.tilt">Steer by tilting</button>
+  </div>
+  <div class="demo rv d2" id="demo" tabindex="0" aria-label="Interactive driving demo. Use arrow keys or drag to steer.">
+    <canvas id="road"></canvas>
+    <svg class="car" id="car" viewBox="0 0 200 200" aria-hidden="true"><use href="#m-swoosh"/><use href="#m-dome"/><rect x="80" y="76" width="11" height="24" rx="5.5" fill="#0B0A09"/><rect x="112" y="72" width="11" height="24" rx="5.5" fill="#0B0A09"/></svg>
+    <div class="hud">
+      <div class="chip" id="spdChip"><span data-i="hud.speed">Speed</span><b id="spd">0</b></div>
+      <div class="chip" style="text-align:right"><span data-i="hud.angle">Wheel</span><b id="ang">0°</b></div>
+    </div>
+    <div class="wheel"><svg id="wheelSvg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="rgba(243,239,232,.18)" stroke-width="8"/><path d="M14 38a38 38 0 0 1 72 0" fill="none" stroke="#FF6A13" stroke-width="8" stroke-linecap="round"/><circle cx="50" cy="50" r="9" fill="#F3EFE8"/><path d="M50 59v33M41 50H8M59 50h33" stroke="rgba(243,239,232,.5)" stroke-width="5" stroke-linecap="round"/></svg></div>
+    <div class="hint"><b data-i="hint.t">Drag to steer</b><span data-i="hint.p">or use ← → keys</span></div>
+  </div>
+  <div class="drive-keys"><span><kbd>←</kbd><kbd>→</kbd><span data-i="keys.steer">steer</span></span><span><kbd>↑</kbd><span data-i="keys.gas">throttle</span></span><span><kbd>↓</kbd><span data-i="keys.brake">brake</span></span></div>
+</div></section>
+
+<section id="features"><div class="wrap">
+  <p class="kicker rv" data-i="feat.k">Inside the app</p>
+  <h2 class="rv d1" data-i="feat.title" data-html>A full cockpit,<br>no extra hardware.</h2>
+  <div class="feat-grid">
+    <article class="f wide rv"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/><path d="M12 14.5V21M9.5 12H3M14.5 12H21"/></svg></div><h3 data-i="f1.t">Precise tilt steering</h3><p data-i="f1.p">Gyroscope fusion keeps it smooth and linear. Set the wheel angle per game, from 270° up to 900°.</p></article>
+    <article class="f wide rv d1"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 12h3l2-6 4 12 2-6h5"/></svg></div><h3 data-i="f2.t">Real vibration</h3><p data-i="f2.p">Crashes, kerbs, throttle and braking come through your hands, driven by live game telemetry.</p></article>
+    <article class="f rv"><div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="11" rx="5"/><path d="M8 11v3M6.5 12.5h3M15.5 12h.01M17.5 13.5h.01"/></svg></div><h3 data-i="f3.t">Virtual Xbox pad</h3><p data-i="f3.p">On Windows, games see a real Xbox 360 or DualShock 4 controller.</p></article>
+    <article class="f rv d1"><div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="5" rx="2"/><rect x="13" y="10" width="8" height="11" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/></svg></div><h3 data-i="f4.t">Your own layout</h3><p data-i="f4.p">Drag and resize every button. Profiles switch when a game starts.</p></article>
+    <article class="f rv d2"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M3 19c.8-3 2.8-4.5 5-4.5s4.2 1.5 5 4.5M13 15.2c.9-.5 1.9-.7 3-.7 2.2 0 4.2 1.5 5 4.5"/></svg></div><h3 data-i="f5.t">Party mode</h3><p data-i="f5.p">Up to four phones on one PC for split screen. Guests join free.</p></article>
+  </div>
+</div></section>
+
+<section><div class="wrap link">
+  <div>
+    <p class="kicker rv" data-i="link.k">Built for speed</p>
+    <h2 class="rv d1" data-i="link.title" data-html>Straight to<br>your PC.</h2>
+    <p class="sub rv d2" data-i="link.sub">Every input travels over UDP on your own network, sixty times a second. No cloud in between, no account, nothing leaves your room.</p>
+  </div>
+  <div class="pipe rv d2" aria-hidden="true">
+    <svg viewBox="0 0 520 220" id="pipe">
+      <path id="wire" d="M90 110 C 200 20, 320 200, 430 110" fill="none" stroke="#2A2521" stroke-width="2" stroke-dasharray="4 6"/>
+      <rect class="node" x="40" y="60" width="64" height="100" rx="14"/>
+      <rect x="64" y="70" width="16" height="3" rx="1.5" fill="#2A2521"/>
+      <circle cx="72" cy="112" r="16" fill="none" stroke="#FF6A13" stroke-width="3"/>
+      <rect class="node" x="400" y="66" width="100" height="70" rx="10"/>
+      <rect x="436" y="136" width="28" height="18" fill="#171411"/><rect x="424" y="154" width="52" height="4" rx="2" fill="#2A2521"/>
+      <text class="nodelabel" x="72" y="186" text-anchor="middle" data-i="link.phone">Phone</text>
+      <text class="nodelabel" x="450" y="186" text-anchor="middle">PC</text>
+      <g id="pkts"></g>
+    </svg>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <p class="kicker rv" data-i="how.k">Set up</p>
+  <h2 class="rv d1" data-i="how.title">On the road in a minute.</h2>
+  <div class="steps">
+    <div class="st rv"><h3 data-i="s1.t">Install on your PC</h3><p data-i="s1.p">Download SteerLink for Windows or Mac and open it.</p></div>
+    <div class="st rv d1"><h3 data-i="s2.t">Get the phone app</h3><p data-i="s2.p">Install SteerLink on iPhone or Android, on the same Wi‑Fi.</p></div>
+    <div class="st rv d2"><h3 data-i="s3.t">Scan and drive</h3><p data-i="s3.p">Scan the QR code on your PC, center the wheel and go.</p></div>
+  </div>
+</div></section>
+
+<section id="pricing"><div class="wrap">
+  <p class="kicker rv" data-i="price.k">Pricing</p>
+  <h2 class="rv d1" data-i="price.title" data-html>Seven days free.<br>Then pick your lane.</h2>
+  <p class="sub rv d2" data-i="price.sub">The PC app is always free. You pay once, on your phone.</p>
+  <div class="plans">
+    <div class="plan hot rv">
+      <span class="tag" data-i="p1.tag">7 days free</span>
+      <h3 data-i="p1.name">Pro Yearly</h3>
+      <div class="price">$12.99<small data-i="p1.unit"> / year</small></div>
+      <p class="per" data-i="p1.per">About a dollar a month. Cancel anytime.</p>
+      <ul><li data-i="pro.a">Tilt steering and analog pedals</li><li data-i="pro.b">Virtual Xbox and DualShock pad</li><li data-i="pro.c">Telemetry vibration and live gauges</li><li data-i="pro.d">Layout editor and game profiles</li></ul>
+    </div>
+    <div class="plan rv d1">
+      <span class="tag" data-i="p2.tag">Pay once</span>
+      <h3 data-i="p2.name">Pro Lifetime</h3>
+      <div class="price">$24.99</div>
+      <p class="per" data-i="p2.per">One payment, yours for good.</p>
+      <ul><li data-i="p2.a">Everything in Pro</li><li data-i="p2.b">No subscription</li><li data-i="p2.c">All future updates</li></ul>
+    </div>
+    <div class="plan rv d2">
+      <span class="tag" data-i="p3.tag">Add-on</span>
+      <h3 data-i="p3.name">Party Pack</h3>
+      <div class="price">$5.99</div>
+      <p class="per" data-i="p3.per">One time, for the host. Requires Pro.</p>
+      <ul><li data-i="p3.a">Up to 4 phones on one PC</li><li data-i="p3.b">Guests play free</li><li data-i="p3.c">Split screen and local co-op</li></ul>
+    </div>
+  </div>
+  <p class="fine" data-i="price.fine">Bought in the App Store or Google Play. Prices may vary by country.</p>
+</div></section>
+
+<section><div class="wrap faq-grid">
+  <div><p class="kicker rv" data-i="faq.k">FAQ</p><h2 class="rv d1" data-i="faq.title">Good questions.</h2></div>
+  <div class="rv d1">
+    <details><summary data-i="q1">Do I need a wheel or extra hardware?</summary><p data-i="a1">No. Your phone and your PC on the same Wi‑Fi are all it takes.</p></details>
+    <details><summary data-i="q2">How fast is it?</summary><p data-i="a2">Inputs go straight over your local network. Your phone shows the live latency the whole time, so you always know.</p></details>
+    <details><summary data-i="q3">Is the PC app free?</summary><p data-i="a3">Yes, always. Pro is bought once on your phone and works with any PC.</p></details>
+    <details><summary data-i="q4">Do I need an account?</summary><p data-i="a4">No account, no sign-up. Purchases stay with your App Store or Google Play account.</p></details>
+    <details><summary data-i="q5">Does it work on a Mac?</summary><p data-i="a5">Yes, as keyboard input. The virtual Xbox controller is Windows only for now.</p></details>
+    <details><summary data-i="q6">Windows says "Windows protected your PC"</summary><p data-i="a6">Click "More info", then "Run anyway". New apps show this until they build up reputation.</p></details>
+  </div>
+</div></section>
+
+<section class="close" id="download">
+  <div class="glow"></div>
+  <div class="wrap">
+    <svg class="close-mascot rv" viewBox="0 0 200 200" aria-hidden="true"><use href="#m-swoosh"/><use href="#m-dome"/><g class="blink"><rect x="80" y="76" width="11" height="24" rx="5.5" fill="#0B0A09"/><rect x="112" y="72" width="11" height="24" rx="5.5" fill="#0B0A09"/></g></svg>
+    <h2 class="rv d1" data-i="close.title">Ready to drive?</h2>
+    <div class="dl">
+      <div class="dlc rv d1">
+        <h3><svg viewBox="0 0 24 24"><path d="M3 5.5l7.5-1v7H3v-6zm8.5-1.2L21 3v8.5h-9.5V4.3zM3 12.5h7.5v7L3 18.5v-6zm8.5 0H21V21l-9.5-1.3v-7.2z"/></svg>Windows</h3>
+        <p data-i="dl.win">Windows 10 or 11, 64-bit. Controller driver included.</p>
+        <a class="btn primary" href="https://github.com/mehmetugurbayar/steerlink-site/releases/latest/download/SteerLink-Setup.exe" data-i="dl.exe">Download .exe</a>
+      </div>
+      <div class="dlc rv d2">
+        <h3><svg viewBox="0 0 24 24"><path d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8 1.6 0 2 .8 3.4.8 1.4 0 2.3-1.3 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9 0 0-2.7-1-2.7-4.1zM13.9 4.9c.7-.9 1.2-2.1 1-3.3-1 0-2.3.7-3 1.6-.7.8-1.2 2-1.1 3.2 1.2.1 2.4-.6 3.1-1.5z"/></svg>macOS</h3>
+        <p data-i="dl.mac">macOS 12 or later. Apple Silicon and Intel.</p>
+        <span class="btn off" data-i="dl.dmgSoon">Coming soon</span>
+      </div>
+      <div class="dlc rv d3">
+        <h3><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3" fill="none" stroke="#F3EFE8" stroke-width="2"/><path d="M10 18h4" stroke="#F3EFE8" stroke-width="2" stroke-linecap="round"/></svg><span data-i="dl.phone">Phone</span></h3>
+        <p data-i="dl.phoneReq">iPhone with iOS 15.1+, Android 7+.</p>
+        <span class="btn off" data-i="dl.soon">App Store and Google Play soon</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer><div class="wrap"><span>© 2026 SteerLink</span><span data-i="foot">Made for people who love to drive.</span></div></footer>
+
+<script>
+const TR={
+"nav.drive":"Test sürüşü","nav.features":"Özellikler","nav.pricing":"Fiyatlar","nav.download":"İndir",
+"hero.title":"Telefonun<br>artık <em>direksiyon.</em>",
+"hero.lead":"Eğerek dön, pedallara bas, her kaldırımı hisset. SteerLink cebindeki telefonu bilgisayarın için bir yarış direksiyonuna çevirir, kendi Wi‑Fi ağın üzerinden.",
+"hero.download":"Ücretsiz indir","hero.try":"Test sürüşüne çık","mq.any":"Kol destekleyen her oyun",
+"drive.k":"Test sürüşü","drive.title":"Yolu tut.","drive.sub":"SteerLink böyle hissettirir. Direksiyon için sağa sola sürükle ya da telefonunu eğ. Yoldan çıkarsan hissedeceksin.","drive.tilt":"Eğerek sür",
+"hud.speed":"Hız","hud.angle":"Direksiyon","hint.t":"Sürükleyerek dön","hint.p":"ya da ← → tuşları","keys.steer":"direksiyon","keys.gas":"gaz","keys.brake":"fren",
+"feat.k":"Uygulamanın içi","feat.title":"Tam bir kokpit,<br>ek donanım yok.",
+"f1.t":"Hassas eğme direksiyon","f1.p":"Jiroskop füzyonu akıcı ve doğrusal tutar. Direksiyon açısını oyuna göre 270°'den 900°'ye ayarla.",
+"f2.t":"Gerçek titreşim","f2.p":"Kaza, kaldırım, gaz ve fren ellerine gelir; canlı oyun telemetrisiyle.",
+"f3.t":"Sanal Xbox kolu","f3.p":"Windows'ta oyunlar gerçek bir Xbox 360 ya da DualShock 4 kolu görür.",
+"f4.t":"Kendi düzenin","f4.p":"Her tuşu sürükle, boyutlandır. Oyun açılınca profil kendiliğinden değişir.",
+"f5.t":"Parti modu","f5.p":"Tek PC'de dört telefona kadar, bölünmüş ekran. Misafirler ücretsiz katılır.",
+"link.k":"Hız için yapıldı","link.title":"Doğrudan<br>bilgisayarına.","link.sub":"Her girdi kendi ağında UDP ile, saniyede altmış kez gider. Arada bulut yok, hesap yok, hiçbir şey odandan çıkmaz.","link.phone":"Telefon",
+"how.k":"Kurulum","how.title":"Bir dakikada yoldasın.",
+"s1.t":"PC'ye kur","s1.p":"Windows ya da Mac için SteerLink'i indir ve aç.","s2.t":"Telefon uygulamasını al","s2.p":"SteerLink'i iPhone ya da Android'e kur, aynı Wi‑Fi'de.","s3.t":"Okut ve sür","s3.p":"PC'deki QR'ı okut, direksiyonu ortala ve başla.",
+"price.k":"Fiyatlar","price.title":"Yedi gün ücretsiz.<br>Sonra şeridini seç.","price.sub":"PC uygulaması her zaman ücretsiz. Ödemeyi bir kez, telefonda yaparsın.",
+"p1.tag":"7 gün ücretsiz","p1.name":"Pro Yıllık","p1.unit":" / yıl","p1.per":"Ayda yaklaşık bir dolar. İstediğin an iptal et.",
+"pro.a":"Eğme direksiyon ve analog pedallar","pro.b":"Sanal Xbox ve DualShock kolu","pro.c":"Telemetri titreşimi ve canlı göstergeler","pro.d":"Düzen editörü ve oyun profilleri",
+"p2.tag":"Tek ödeme","p2.name":"Pro Ömür Boyu","p2.per":"Bir kez öde, hep senin.","p2.a":"Pro'daki her şey","p2.b":"Abonelik yok","p2.c":"Gelecekteki tüm güncellemeler",
+"p3.tag":"Eklenti","p3.name":"Parti Paketi","p3.per":"Tek seferlik, ev sahibi için. Pro gerekir.","p3.a":"Tek PC'de 4 telefona kadar","p3.b":"Misafirler ücretsiz oynar","p3.c":"Bölünmüş ekran ve yerel co-op",
+"price.fine":"App Store ya da Google Play'den alınır. Fiyatlar ülkeye göre değişebilir.",
+"faq.k":"SSS","faq.title":"Güzel sorular.",
+"q1":"Direksiyon seti ya da ek donanım gerekir mi?","a1":"Hayır. Aynı Wi‑Fi'de telefonun ve bilgisayarın yeterli.",
+"q2":"Ne kadar hızlı?","a2":"Girdiler doğrudan yerel ağından gider. Telefonun anlık gecikmeyi sürekli gösterir, her zaman bilirsin.",
+"q3":"PC uygulaması ücretsiz mi?","a3":"Evet, her zaman. Pro telefonda bir kez alınır ve her PC ile çalışır.",
+"q4":"Hesap açmam gerekir mi?","a4":"Hesap yok, kayıt yok. Satın alımlar App Store ya da Google Play hesabında kalır.",
+"q5":"Mac'te çalışır mı?","a5":"Evet, klavye girdisi olarak. Sanal Xbox kolu şimdilik yalnızca Windows'ta.",
+"q6":"Windows \"Windows bilgisayarınızı korudu\" diyor","a6":"\"Ek bilgi\", ardından \"Yine de çalıştır\"a tıkla. Yeni uygulamalarda itibar oluşana kadar bu uyarı çıkar.",
+"close.title":"Sürmeye hazır mısın?",
+"dl.win":"Windows 10 ya da 11, 64-bit. Kol sürücüsü dahil.","dl.exe":".exe indir","dl.mac":"macOS 12 ve üzeri. Apple Silicon ve Intel.","dl.dmgSoon":"Yakında","dl.phone":"Telefon","dl.phoneReq":"iOS 15.1+ iPhone, Android 7+.","dl.soon":"App Store ve Google Play yakında",
+"foot":"Sürmeyi sevenler için yapıldı."
+};
+const nodes=[...document.querySelectorAll("[data-i]")];
+const EN=new Map(nodes.map(n=>[n,n.innerHTML]));
+const langBtn=document.getElementById("lang");
+let lang;
+function applyLang(l){
+  lang=l;document.documentElement.lang=l;
+  nodes.forEach(n=>{const v=l==="tr"?TR[n.dataset.i]:null;if(v==null){n.innerHTML=EN.get(n);return}if(n.hasAttribute("data-html"))n.innerHTML=v;else n.textContent=v});
+  langBtn.textContent=l==="tr"?"EN":"TR";
+  try{localStorage.setItem("lang",l)}catch(e){}
+}
+let saved;try{saved=localStorage.getItem("lang")}catch(e){}
+applyLang(saved||((navigator.language||"en").toLowerCase().startsWith("tr")?"tr":"en"));
+langBtn.onclick=()=>applyLang(lang==="tr"?"en":"tr");
+
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const nav=document.getElementById("nav");
+
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:.15});
+document.querySelectorAll(".rv,.st").forEach(el=>io.observe(el));
+requestAnimationFrame(()=>document.querySelectorAll(".hero .rv").forEach(el=>el.classList.add("in")));
+
+const eyes=document.getElementById("eyes"),mascot=document.getElementById("mascot"),stage=document.getElementById("stage"),ringB=document.getElementById("ringB"),glow=document.getElementById("glow");
+let px=0,py=0,ex=0,ey=0,blinkAt=0;
+addEventListener("pointermove",e=>{
+  const r=stage.getBoundingClientRect();
+  px=Math.max(-1,Math.min(1,(e.clientX-(r.left+r.width/2))/(r.width*.8)));
+  py=Math.max(-1,Math.min(1,(e.clientY-(r.top+r.height*.45))/(r.height*.8)));
+},{passive:true});
+document.querySelectorAll(".f").forEach(c=>{
+  c.addEventListener("pointermove",e=>{
+    const r=c.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+    c.style.setProperty("--mx",x+"px");c.style.setProperty("--my",y+"px");
+    if(!reduce)c.style.transform=`perspective(900px) rotateX(${(y/r.height-.5)*-5}deg) rotateY(${(x/r.width-.5)*6}deg)`;
+  });
+  c.addEventListener("pointerleave",()=>c.style.transform="");
+});
+function heroLoop(){
+  ex+=(px-ex)*.12;ey+=(py-ey)*.12;
+  const bl=performance.now()-blinkAt<140?" translate(101 86) scale(1 .1) translate(-101 -86)":"";
+  eyes.setAttribute("transform",`translate(${ex*7} ${ey*5})`+bl);
+  const s=scrollY,h=innerHeight;
+  nav.classList.toggle("solid",s>20);
+  if(s<h*1.2&&!reduce){
+    mascot.style.transform=`translate(${ex*6}px,${s*.06+ey*4}px) rotate(${ex*4-s*.01}deg)`;
+    ringB.style.transform=`rotate(${-s*.04}deg)`;
+    glow.style.transform=`translate(${ex*-30}px,${s*.25}px)`;
+  }
+  requestAnimationFrame(heroLoop);
+}
+requestAnimationFrame(heroLoop);
+setInterval(()=>{if(!reduce)blinkAt=performance.now()},4200);
+
+/* packets */
+(()=>{
+  const wire=document.getElementById("wire"),g=document.getElementById("pkts"),L=wire.getTotalLength(),N=7,ps=[];
+  for(let i=0;i<N;i++){const c=document.createElementNS("http://www.w3.org/2000/svg","circle");c.setAttribute("r",4);c.setAttribute("class","pkt");g.appendChild(c);ps.push(c)}
+  let t0=performance.now();
+  function f(t){const k=((t-t0)/1600)%1;ps.forEach((c,i)=>{const u=(k+i/N)%1,p=wire.getPointAtLength(u*L);c.setAttribute("cx",p.x);c.setAttribute("cy",p.y);c.setAttribute("opacity",Math.sin(u*Math.PI))});if(!reduce)requestAnimationFrame(f)}
+  requestAnimationFrame(f);
+})();
+
+/* test drive */
+(()=>{
+  const demo=document.getElementById("demo"),cv=document.getElementById("road"),ctx=cv.getContext("2d");
+  const car=document.getElementById("car"),spdEl=document.getElementById("spd"),angEl=document.getElementById("ang"),wheel=document.getElementById("wheelSvg"),spdChip=document.getElementById("spdChip");
+  const N=800,SEG=200,ROADW=1900,CAMH=1100,DEPTH=1/Math.tan(50*Math.PI/180),DRAW=140,MAX=SEG*60;
+  const segs=[];
+  let c=0;while(segs.length<N){const len=40+Math.random()*80|0,target=(Math.random()<.25?0:(Math.random()*2-1)*5.5);for(let i=0;i<len&&segs.length<N;i++){const k=i/len,e=k<.2?k/.2:k>.8?(1-k)/.2:1;segs.push({curve:c+(target-c)*e})}c=0}
+  let W,H,dpr,pos=0,speed=0,x=0,steer=0,target=0,gas=0,brake=0,live=false,visible=false,last=0,shake=0,keyL=0,keyR=0,tiltOn=false,lastBuzz=0;
+  function size(){dpr=Math.min(devicePixelRatio||1,2);const r=demo.getBoundingClientRect();W=cv.width=r.width*dpr;H=cv.height=r.height*dpr}
+  size();addEventListener("resize",size);
+  const quad=(c,x1,y1,w1,x2,y2,w2)=>{ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(x1-w1,y1);ctx.lineTo(x2-w2,y2);ctx.lineTo(x2+w2,y2);ctx.lineTo(x1+w1,y1);ctx.fill()};
+  function render(){
+    const hz=H*.5;
+    const sky=ctx.createLinearGradient(0,0,0,hz);sky.addColorStop(0,"#0B0A09");sky.addColorStop(1,"#2a1407");
+    ctx.fillStyle=sky;ctx.fillRect(0,0,W,hz+2);
+    const sx=W/2-x*W*.08;
+    const sun=ctx.createRadialGradient(sx,hz,0,sx,hz,H*.42);sun.addColorStop(0,"rgba(255,106,19,.9)");sun.addColorStop(.25,"rgba(255,106,19,.35)");sun.addColorStop(1,"rgba(255,106,19,0)");
+    ctx.fillStyle=sun;ctx.fillRect(0,0,W,hz);
+    ctx.save();ctx.beginPath();ctx.arc(sx,hz,H*.12,Math.PI,0);ctx.clip();ctx.fillStyle="#FF6A13";ctx.fillRect(sx-H*.13,hz-H*.13,H*.26,H*.13);
+    ctx.fillStyle="#2a1407";for(let i=0;i<4;i++){ctx.fillRect(sx-H*.13,hz-H*.015-i*H*.024,H*.26,H*(.009-i*.0018))}ctx.restore();
+    ctx.fillStyle="#0E0C0A";ctx.fillRect(0,hz,W,H-hz);
+    const base=Math.floor(pos/SEG),frac=(pos%SEG)/SEG;
+    let dx=-segs[base%N].curve*frac,cx=0,maxy=H,prev=null;
+    const pts=[];
+    for(let n=0;n<DRAW;n++){
+      const s=segs[(base+n)%N],z=(n+1-frac)*SEG;
+      const scale=DEPTH/z;
+      pts.push({sx:W/2+scale*(cx-x*ROADW)*W/2,sy:hz+scale*CAMH*H/2,sw:scale*ROADW*W/2,i:base+n});
+      cx+=dx;dx+=s.curve;
+    }
+    for(let n=pts.length-1;n>0;n--){
+      const p1=pts[n-1],p2=pts[n];
+      if(p2.sy>=p1.sy)continue;
+      const alt=(p2.i>>2)&1;
+      ctx.fillStyle=alt?"#13100D":"#0F0D0B";ctx.fillRect(0,p2.sy,W,p1.sy-p2.sy+1);
+      quad(alt?"#FF6A13":"#F3EFE8",p1.sx,p1.sy,p1.sw*1.14,p2.sx,p2.sy,p2.sw*1.14);
+      quad(alt?"#221E1B":"#1E1A17",p1.sx,p1.sy,p1.sw,p2.sx,p2.sy,p2.sw);
+      if(alt){quad("rgba(243,239,232,.7)",p1.sx,p1.sy,p1.sw*.02,p2.sx,p2.sy,p2.sw*.02)}
+    }
+  }
+  function step(t){
+    const dt=Math.min(.05,(t-last)/1000||0);last=t;
+    if(keyL||keyR)target=(keyR-keyL);
+    steer+=(target-steer)*Math.min(1,dt*10);
+    const accel=(live?(brake?-1.6:gas?1.1:.55):-.4);
+    speed=Math.max(0,Math.min(MAX*(gas?1:.78),speed+accel*MAX*dt*.5));
+    const r=speed/MAX,seg=segs[Math.floor(pos/SEG)%N];
+    x+=steer*r*dt*2.2-seg.curve*r*r*dt*.32;
+    const off=Math.abs(x)>1.05;
+    if(off){speed-=speed*dt*1.6;shake=Math.min(1,shake+dt*6);if(navigator.vibrate&&t-lastBuzz>220&&speed>MAX*.15){navigator.vibrate(30);lastBuzz=t}}else shake=Math.max(0,shake-dt*4);
+    x=Math.max(-2.2,Math.min(2.2,x));
+    pos+=speed*dt*1.0;
+    render();
+    const j=shake*(Math.random()-.5)*10;
+    car.style.transform=`translate(${j}px,${shake*(Math.random()-.5)*6}px) rotate(${steer*12}deg)`;
+    wheel.style.transform=`rotate(${steer*135}deg)`;
+    spdEl.textContent=Math.round(r*240);
+    angEl.textContent=Math.round(steer*450)+"°";
+    spdChip.classList.toggle("warn",off);
+    if(visible)requestAnimationFrame(step);
+  }
+  new IntersectionObserver(([e])=>{const was=visible;visible=e.isIntersecting;if(visible&&!was){last=performance.now();requestAnimationFrame(step)}},{threshold:.05}).observe(demo);
+  const start=()=>{if(!live){live=true;demo.classList.add("live")}};
+  let drag=null;
+  demo.addEventListener("pointerdown",e=>{start();drag={x:e.clientX,t:target};demo.setPointerCapture(e.pointerId)});
+  demo.addEventListener("pointermove",e=>{if(!drag)return;const w=demo.getBoundingClientRect().width;target=Math.max(-1,Math.min(1,drag.t+(e.clientX-drag.x)/(w*.28)))});
+  const end=()=>{drag=null;if(!tiltOn)target=0};
+  demo.addEventListener("pointerup",end);demo.addEventListener("pointercancel",end);
+  addEventListener("keydown",e=>{
+    const r=demo.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)return;
+    if(["ArrowLeft","ArrowRight","ArrowUp","ArrowDown"].includes(e.key)){e.preventDefault();start()}
+    if(e.key==="ArrowLeft")keyL=1;if(e.key==="ArrowRight")keyR=1;if(e.key==="ArrowUp")gas=1;if(e.key==="ArrowDown")brake=1;
+  });
+  addEventListener("keyup",e=>{if(e.key==="ArrowLeft")keyL=0;if(e.key==="ArrowRight")keyR=0;if(!keyL&&!keyR&&!tiltOn&&!drag)target=0;if(e.key==="ArrowUp")gas=0;if(e.key==="ArrowDown")brake=0});
+  const tiltBtn=document.getElementById("tilt");
+  tiltBtn.addEventListener("click",async()=>{
+    try{if(typeof DeviceOrientationEvent!=="undefined"&&DeviceOrientationEvent.requestPermission){if(await DeviceOrientationEvent.requestPermission()!=="granted")return}}catch(e){return}
+    tiltOn=true;start();tiltBtn.classList.add("off");
+    addEventListener("deviceorientation",e=>{if(e.gamma==null)return;const land=Math.abs(screen.orientation?screen.orientation.angle:window.orientation||0)===90;const v=land?(e.beta||0)*(((screen.orientation&&screen.orientation.angle)||window.orientation)===90?1:-1):e.gamma;target=Math.max(-1,Math.min(1,v/30))});
+  });
+  render();
+})();
+</script>
+</body>
+</html>
